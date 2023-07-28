@@ -1,4 +1,5 @@
 import sys
+import argparse
 from Bio import SeqIO
 
 def extract_sequences(blast_results_file, db, output_file):
@@ -33,4 +34,5 @@ if __name__ == "__main__":
     parser.add_argument("db", help="database.fa")
     args = parser.parse_args()
 
-    extract_sequences(blast_results_file, db, blast_results_file + ".fa")
+    output_file = args.blast_results_file + ".fa"
+    extract_sequences(args.blast_results_file, args.db, args.blast_results_file + ".fa")

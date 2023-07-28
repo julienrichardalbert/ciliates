@@ -11,6 +11,7 @@ def create_phylogenetic_tree(fasta_file):
     sequences = list(SeqIO.parse(fasta_file, "fasta"))
 
     # Step 2: Perform multiple sequence alignment using MAFFT
+    print("Multiple sequence alignment using MAFFT on file", fasta_file)
     alignment_file = fasta_file + ".aligned"
     mafft_cline = MafftCommandline(input=fasta_file)
     stdout, stderr = mafft_cline()
@@ -18,11 +19,13 @@ def create_phylogenetic_tree(fasta_file):
         handle.write(stdout)
 
     # Step 3: Calculate the distance matrix
+    print("Calculating the distance matrix using BioPython on file", alignment_file)
     alignment = AlignIO.read(alignment_file, "fasta")
     calculator = DistanceCalculator("identity")
     distance_matrix = calculator.get_distance(alignment)
 
     # Step 4: Construct the phylogenetic tree
+    print("Creating phylogenetic tree using BioPython")
     constructor = DistanceTreeConstructor()
     tree = constructor.nj(distance_matrix)
 

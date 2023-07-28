@@ -35,13 +35,10 @@ def replace_protein_names(proteome_file, metadata_file):
     with open(output_file, "w") as file:
         file.write(proteome_data)
 
-def main():
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Replace protein names in a proteome file using metadata.")
     parser.add_argument("proteome_file", help="BIG proteome file.")
     parser.add_argument("metadata_file", help="2-column metadata file.")
     args = parser.parse_args()
 
     replace_protein_names(args.proteome_file, args.metadata_file)
-
-if __name__ == "__main__":
-    main()
