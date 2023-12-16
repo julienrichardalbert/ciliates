@@ -4,9 +4,12 @@ import argparse
 import subprocess
 import shutil
 import logging
+import datetime
 import pandas as pd
-
 from Bio import SeqIO
+
+from config_loader import load_config
+from log_progress import setup_logger, log
 from blastp import run_blastp, add_header_to_blastp
 from filter_blast_hits import filter_best_hits
 from extract_sequence_blast_hits import extract_sequences
@@ -26,14 +29,6 @@ from ete3 import NCBITaxa
 import matplotlib.pyplot as plt
 
 ncbi = NCBITaxa()
-logging.basicConfig(filename='log_file.txt', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
-
-def loggit(args):
-    logging.info(f'Input file: FULL PATH TO {args.start_file}')
-    logging.info(f'Protein db: {args.start_file}')
-
-
 
 def genes_to_trees(gene_name, ori_dir, args):
     logging.info(f"Processing {gene_name}...")
@@ -122,12 +117,17 @@ def trees_to_graphs(alignment, input_arguments):
         logging.info(tree)  # because its fun to do
         calculate_dS(alignment + '.trimal.automated1.cds', tree, '5888.PTET_51')  # partial name of the reference leaf
 
-        preference_dictionary = {'tet': 1,
-                                 'bia': 2, 'dec': 2, 'dod': 2, 'jen': 2, 'nov': 2, 'oct': 2, 'pen': 2, 'pri': 2, 'qua': 2,
-                                 'sex': 2, 'son': 2, 'tre': 2,
-                                 'cau': 3}
+        # this has to be this way, unless I load the config.ini into the evolution script.
+        try:
+            preference_dictionary = defaults['preference_dictionary']
+        except KeyError:
+            print("preference_dictionary not found in defaults")
+            preference_dictionary = {'tet': 1,
+                                    'bia': 2, 'dec': 2, 'dod': 2, 'jen': 3, 'nov': 2, 'oct': 2, 'pen': 2, 'pri': 2, 'qua': 2,
+                                    'sex': 3, 'son': 3, 'tre': 2,
+                                    'cau': 4}
 
-        if args.runall:
+        if args.allmodels:
             models = ['M1', 'M2', 'M7', 'M8', 'fb']
             run_models(alignment + '.trimal.automated1.cds', tree, models)
             get_pvals(alignment + '.trimal.automated1.cds', tree, 'M2', 'M1', 'p2')  # alt, neg
@@ -154,21 +154,27 @@ def trees_to_graphs(alignment, input_arguments):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run a single instance of a combination of steps, which perform the steps: blastp | align | build tree | annotate | trim | cds | evolution")
+    defaults = load_config()
     parser.add_argument('-s', '--start_file', required=True, help='Either a protein/gene name (e.g. 5888.PTET_51_T0310084) when paired with -genestart or a tree (culled tree ending in .nwk) when paired with -treestart.')
-    parser.add_argument('-db_prot', '--db_prot',  default='/Users/jra/Dropbox/ciliates/references/proteomes/17_paramecia_proteomes_taxID.fa', help='full path to protein database.')
-    parser.add_argument('-db_cds', '--db_cds', default='/Users/jra/Dropbox/ciliates/references/transcriptomes/17_paramecia_transcriptomes_taxID.fa', help='full path to cds database.')
-    parser.add_argument('-db_ohno', '--db_ohno', default='/Users/jra/Dropbox/ciliates/references/ohnolog_annotations/17_ciliates_wgd.txt', help='full path to ohnolog annotation file.')
+    parser.add_argument('-db_prot', '--db_prot',  default=defaults['db_prot'], help='full path to protein database.')
+    parser.add_argument('-db_cds', '--db_cds', default=defaults['db_cds'], help='full path to cds database.')
+    parser.add_argument('-db_ohno', '--db_ohno', default=defaults['db_ohno'], help='full path to ohnolog annotation file.')
 
     parser.add_argument('-genestart', '--genestart', action='store_true', default=False, help='Keep all blastp results, make a tree, curate it and stop.')
     parser.add_argument('-treestart', '--treestart', action='store_true', default=False, help='Start from a manually curated tree, run the rest of the pipeline.')
 
-    parser.add_argument('-blaste', '--blaste', type=float, default=0.1, help='BLASTp evalue to threshold results.')
+    parser.add_argument('-blaste', '--blaste', type=float, default=defaults['blaste'], help='BLASTp evalue to threshold results.')
     parser.add_argument('-evol', '--evolution', action='store_true', default=False, help='Run the evolution analysis script.')
-    parser.add_argument('-runall', '--runall', action='store_true', default=False, help='Run all evolutionary models.')
+    parser.add_argument('-allmodels', '--allmodels', action='store_true', default=False, help='Run all evolutionary models.')
 
     args = parser.parse_args()
-
     ori_dir = os.getcwd()
+    setup_logger(log_file=args.start_file)
+
+    log('Setting defaults')
+    for key, value in defaults.items():
+        log(f'{key}: {value}')
+    log('Starting pipeline')
 
     # start at the beginning
     if args.genestart:
@@ -186,3 +192,4 @@ if __name__ == "__main__":
     else:
         print('Please select either -genestart or -treestart\nType -h for more help.')  # DON'T TRY TO MAKE THE PIPELINE DO A FULL RUN. ALWAYS CURATE THE INITIAL ALIGNMENT!
     os.chdir(ori_dir)
+    log('Script done')
