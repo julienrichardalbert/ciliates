@@ -62,8 +62,11 @@ def annotate_swiss(fasta_file, blastp_results):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Annotate protein sequences using SWISS-PROT annotations")
+
+    defaults = load_config()
     parser.add_argument("fasta_file", help="proteinA.fa")
+    parser.add_argument('-db_uniprot', '--db_uniprot',  default=defaults['db_uniprot'], help='full path to uniprot database.')
     args = parser.parse_args()
 
-    run_blastp_uniprot("/Users/jra/Dropbox/ciliates/old/uniprot/uniprot_sprot.fasta.db", args.fasta_file,  args.fasta_file + ".uniprot.out")
+    run_blastp_uniprot(args.db_uniprot, args.fasta_file,  args.fasta_file + ".uniprot.out")
     annotate_swiss(args.fasta_file, args.fasta_file + ".uniprot.out")
