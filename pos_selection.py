@@ -8,6 +8,11 @@ from evol_chunks import genes_to_trees, trees_to_graphs
 from ete3 import NCBITaxa
 ncbi = NCBITaxa()
 
+from ete3 import EvolTree
+from ete3.treeview.layouts import evol_clean_layout
+from ete3 import NCBITaxa
+import matplotlib.pyplot as plt
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run a single instance of a combination of steps, which perform the steps: blastp | align | build tree | annotate | trim | cds | evolution")
     defaults = load_config()

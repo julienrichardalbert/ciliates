@@ -186,9 +186,11 @@ def get_pvals(prefix, tree, alt, neg, pnum):
                         output2.write(output_line2)
     else:
         log(f'{neg} model is not rejected')
+    log('Done running models')
 
 def evol_graphs(prefix, tree, alt, neg, suffix):
     # Change the colours
+    log('Load models you have run')
     col_line = {'NS' : '#777777',
            'RX' : '#777777', 'RX+': '#777777',
            'CN' : '#777777', 'CN+': '#777777',
@@ -202,6 +204,7 @@ def evol_graphs(prefix, tree, alt, neg, suffix):
     alt_model = tree.get_evol_model(alt)
     neg_model = tree.get_evol_model(neg)
 
+    log('Making PDF files')
     alt_model.set_histface(up=True, colors=col_line, errors=True, kind='curve', ylim=[0,20], hlines = [1], hlines_col=['black'])
     tree.render(prefix +  '.' + alt + suffix + '.line.pdf', histfaces=[alt])
     alt_model.set_histface(up=True, colors=col_line, errors=True, kind='curve', ylim=[0,10], hlines = [1], hlines_col=['black'])

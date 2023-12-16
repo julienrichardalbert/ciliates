@@ -111,8 +111,9 @@ def trees_to_graphs(alignment, args):
         input_file  = alignment + '.trimal.automated1.cds',
         output_file = alignment + '.trimal.automated1.aa'
     )
+    #THIS ISNT DOING WHAT YOU THINK IT dOES. IT HSOULD RETURN JUST ONE AA SEQ!
     faSomeRecordPy(
-        query_file  = alignment,
+        query_file  = args.start_file,
         target_file = alignment + '.trimal.automated1.aa',
         output_file = alignment + '.trimal.automated1.aa.starter'
     )
@@ -155,10 +156,11 @@ def trees_to_graphs(alignment, args):
             get_pvals(alignment + '.trimal.automated1.cds', tree, 'M8', 'M7', 'p10')
             evol_graphs(alignment + '.trimal.automated1.cds', tree, 'M2', 'M1', '')  # alt, neg, suffix
             evol_graphs(alignment + '.trimal.automated1.cds', tree, 'M8', 'M7', '')
+
+            log('Changing leaf names to species name')
             modify_leaf_names_reroot(tree, preference_dictionary)  # change leaf name nomenclature from TaxID.gene to spe and reroot
             evol_graphs(alignment + '.trimal.automated1.cds', tree, 'M2', 'M1', '_sp')
             evol_graphs(alignment + '.trimal.automated1.cds', tree, 'M8', 'M7', '_sp')
-            os.chdir(ori_dir)
             tree = ''
         else:
             models = ['M1', 'M2']
