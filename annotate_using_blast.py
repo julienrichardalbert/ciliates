@@ -15,10 +15,11 @@ run_blastp_uniprot("/Users/jra/Dropbox/ciliates/uniprot/uniprot_sprot.fasta.db",
 import sys
 import argparse
 import subprocess
+from log_progress import log
+
 
 def run_blastp_uniprot(db, query, output_file):
-    print("Annotating tree using BLAST")
-    print("Running blastp...")
+    log("Annotating tree using BLAST. Running blastp...")
     cline_blastp = [
         "blastp",
         "-db", db,
@@ -30,7 +31,7 @@ def run_blastp_uniprot(db, query, output_file):
     subprocess.run(cline_blastp)
 
 def annotate_swiss(fasta_file, blastp_results):
-    print("Parsing results and annotating tree")
+    log("Parsing results and annotating tree")
     # 1. load in fasta file
     fasta = open(fasta_file,'r').read()
     seq_d = {}

@@ -18,8 +18,12 @@ def load_config():
         'db_prot': config.get('paths', 'db_prot'),
         'db_cds': config.get('paths', 'db_cds'),
         'db_ohno': config.get('paths', 'db_ohno'),
+        'db_uniprot': config.get('paths', 'db_uniprot'),
         'blaste': float(config.get('defaults', 'blaste')),
-        'preference_dictionary': ast.literal_eval(config.get('defaults', 'preference_dictionary'))
+        'preference_dictionary': ast.literal_eval(config.get('defaults', 'preference_dictionary')),
+        'refname': config.get('defaults', 'refname'),
+        'lenmultiplier': config.get('defaults', 'lenmultiplier'),
+        'trimal_strat': config.get('defaults', 'trimal_strate'),
     }
 
 #    print('Setting defaults')

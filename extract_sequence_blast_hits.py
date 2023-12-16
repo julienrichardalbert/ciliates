@@ -2,9 +2,10 @@ import sys
 import argparse
 from Bio import SeqIO
 import numpy as np
+from log_progress import log
 
 def extract_sequences(blast_results_file, db, output_file):
-    print('Extracting sequences')
+    log('Extracting sequences')
     # Step 1: Read BLAST results and extract sequence IDs
     with open(blast_results_file, "r") as blast_results:
         # Create a set to store the sequence IDs from BLAST results
@@ -44,29 +45,23 @@ def filter_long_sequences(input_file, output_file, input_multiplier):
     third_quartile = np.percentile(sequence_lengths, 75)
     first_quartile = np.percentile(sequence_lengths, 25)
     iqr = third_quartile - first_quartile
-    print(f'Blastp hits to filter: {len(sequence_lengths)}') # get the length of the lengths, genius
-    print(f'median length: {median_length}')
-    print(f'iqr: {iqr}')
-
+    log(f'Blastp hits to filter: {len(sequence_lengths)}') # get the length of the lengths, genius
     # Define length threshold (third quartile + 2 * IQR)
     length_threshold_minimum = 50
     length_threshold_iqr = third_quartile + input_multiplier * iqr
     length_threshold = length_threshold_iqr + length_threshold_minimum if (length_threshold_iqr - median_length < 50) else length_threshold_iqr
-    print(f'Setting minimum length difference: {length_threshold_minimum}')
-    print(f'Length threshold as a function of iqr: {length_threshold_iqr}')
-    print(f'Length threshold used: {length_threshold}')
-
-    output_log = input_file + '.size.log'
-    # Print the number of input and output entries
-    with open(output_log, 'w') as ofile:
-        ofile.write(f'median length: {median_length}\n')
-        ofile.write(f'iqr: {iqr}\n')
-        ofile.write(f'Setting minimum length difference: {length_threshold_minimum}\n')
-        ofile.write(f'Length threshold as a function of iqr: {length_threshold_iqr}\n')
-        ofile.write(f'Length threshold used: {length_threshold}\n')
+    log(f'Setting minimum length difference: {length_threshold_minimum}')
+    log(f'Length threshold as a function of iqr: {length_threshold_iqr}')
+    log(f'Length threshold used: {length_threshold}')
+    log(f'median length: {median_length}')
+    log(f'iqr: {iqr}')
+    log(f'Setting minimum length difference: {length_threshold_minimum}')
+    log(f'Length threshold as a function of iqr: {length_threshold_iqr}')
+    log(f'Length threshold used: {length_threshold}')
 
     # Write filtered sequences to the output FASTA file
     with open(output_file, "w") as output_fasta:
+        kept = 0
         for sequence_id, sequence in sequences.items():
             # Filter out sequences longer than the threshold
             if len(sequence) < length_threshold:
@@ -75,10 +70,12 @@ def filter_long_sequences(input_file, output_file, input_multiplier):
                 sequence_data = f"{sequence.seq}\n"
                 output_fasta.write(header_line)
                 output_fasta.write(sequence_data)
+                kept += 1
             else:
                 # Log filtered sequences to stdout
                 diff = int(len(sequence) - length_threshold)
-                print(f"Sequence {sequence_id} is {diff}bp longer than the threshold and has been filtered out.")
+                log(f"Sequence {sequence_id} is {diff}bp longer than the threshold and has been filtered out.")
+    log(f'Sequences kept after filtering-out long ones: {kept}\n')
 
 
 if __name__ == "__main__":

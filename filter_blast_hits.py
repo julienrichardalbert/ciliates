@@ -3,10 +3,12 @@
 
 import argparse
 import pandas as pd
+from log_progress import log
 
-def filter_best_hits(input_file, output_file):
 
-    output_log = input_file + '.top.log'
+def filter_best_hits(input_file, output_file, args):
+
+    log('Filtering blastp hits for the top per species')
     df = pd.read_csv(input_file, sep='\t')
 
     # Extract species from 'sseqid' column
@@ -18,12 +20,8 @@ def filter_best_hits(input_file, output_file):
     # Save the result to the output file
     result_df.to_csv(output_file, sep='\t', index=False)
 
-    # Print the number of input and output entries
-    with open(output_log, 'w') as ofile:
-        ofile.write(f"{input_file}: {len(df)}\n")
-        ofile.write(f"{output_file}: {len(result_df)}")
-    print(f"{input_file}: {len(df)}")
-    print(f"{output_file}: {len(result_df)}")
+    log(f'{input_file}: {len(df)}')
+    log(f'{output_file}: {len(result_df)}')
 
     return len(result_df) > 1 # returns True if there is more than 1 hit.
 
@@ -34,4 +32,4 @@ if __name__ == "__main__":
     output = args.hits + '.top'
 
 
-    filter_best_hits(args.hits, output)
+    filter_best_hits(args.hits, output, args)

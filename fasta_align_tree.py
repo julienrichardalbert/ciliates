@@ -13,6 +13,8 @@ from Bio import AlignIO
 from Bio.Phylo.TreeConstruction import DistanceCalculator
 from Bio.Phylo.TreeConstruction import DistanceTreeConstructor
 from Bio import Phylo
+from log_progress import log
+
 
 
 def perform_alignment(fasta_file, aligner):
@@ -30,7 +32,7 @@ def perform_alignment(fasta_file, aligner):
         if aligner.lower() == "mafft":
             align_command = f"mafft --quiet {fasta_file} > {alignment_file}"
         elif aligner.lower() == "muscle":
-            align_command = f"muscle -align {fasta_file} -output {alignment_file}"
+            align_command = f"muscle -align {fasta_file} -output {alignment_file} -quiet"
         else:
             raise ValueError("Invalid aligner choice. Use 'mafft' or 'muscle'.")
 

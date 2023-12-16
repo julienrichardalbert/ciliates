@@ -11,6 +11,8 @@ import matplotlib.pyplot as plt
 import os
 import shutil
 import argparse
+from log_progress import log
+
 ncbi = NCBITaxa()
 
 def file_exists(filename):
@@ -104,7 +106,7 @@ def calculate_dS(prefix, tree, reference):
             for leaf_name, data in dS_values.items():
                 #print(f"{leaf_name}\t{data['Species']}\t{data['dS']:.4f}")
                 f.write(f"{leaf_name}\t{data['Species']}\t{data['dS']:.4f}\n")
-            print(f"Ds values have been written to {output_txt}")
+            log(f"Ds values have been written to {output_txt}")
 
         # Create a bar chart
         geneName = str(prefix.split("_")[0])
@@ -129,7 +131,7 @@ def calculate_dS(prefix, tree, reference):
         plt.savefig(output_fig)
 
     else:
-        print(f"No leaf found in the tree with a name starting with '{partial_leaf_name}'.")
+        log(f"No leaf found in the tree with a name starting with '{partial_leaf_name}'.")
 
 
 # run the evolutionary models (longest step)
@@ -144,9 +146,9 @@ def run_models(prefix, tree, models):
     #    else:
     #        print(f"The model {model} exists. Skipping")
     # TABARNAK WHY THE FUCK CANT THIS STUPID FUCK ETE3 FIND THE FUCKING MODELS IN THE FUCKING WORKING DIRECTORY I FUCKING SPECIFIED
-    print(f'Computing model set: {models}')
+    log(f'Computing model set: {models}')
     for model in models:
-        print(f'Computing model: {model}')
+        log(f'Computing model: {model}')
         tree.run_model(model)
 
     output_models = prefix + '.models.txt'
@@ -161,6 +163,7 @@ def get_pvals(prefix, tree, alt, neg, pnum):
 
     altModel = tree.get_evol_model(alt)
     pval = tree.get_most_likely(alt, neg)
+    log(f'{alt} vs {neg} pval: {pval}')
     output_file = prefix + '.pvals.txt'
     with open(output_file, "a") as output:
         output.write('#altModel\tnegModel\tpval\n')
@@ -170,7 +173,7 @@ def get_pvals(prefix, tree, alt, neg, pnum):
         output_file2 = prefix + '.sigAAs.txt'
         with open(output_file2, "a") as output2:
             output2.write('#alt_model\tnegmodel\taa\tposition\tprobability\tomega\n')
-            print(f'{alt} model wins.')
+            log(f'{alt} model wins.')
             for s in range(len(altModel.sites['BEB']['aa'])):
                     if altModel.sites['BEB'][pnum][s] > 0.95:
                         pos_acid  = altModel.sites['BEB']['aa'][s]
@@ -179,10 +182,10 @@ def get_pvals(prefix, tree, alt, neg, pnum):
                         pos_omega = str(altModel.sites['BEB']['w'][s])
 
                         output_line2 = alt + '\t' + neg + '\t' + pos_acid + '\t' + pos_site + '\t' + pos_prob + '\t' + pos_omega + '\n'
-                        print(output_line2)
+                        log(output_line2)
                         output2.write(output_line2)
     else:
-        print(f'{neg} model is not rejected')
+        log(f'{neg} model is not rejected')
 
 def evol_graphs(prefix, tree, alt, neg, suffix):
     # Change the colours

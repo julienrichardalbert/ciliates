@@ -1,9 +1,11 @@
 # translate CDS into protein
 # kinda from https://biopython.org/docs/1.75/api/Bio.Seq.html
 
-import  argparse
+import argparse
 from Bio.Seq import Seq
 from Bio import SeqIO
+from log_progress import log
+
 
 '''
 codon_table = {
@@ -28,6 +30,7 @@ codon_table = {
 
 
 def translate_cds(input_file, output_file):
+    log(f'Translating {input_file} using translate table #6')
     with open(input_file, 'r') as file:
         gene_records = SeqIO.parse(file, 'fasta')
 

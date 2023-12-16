@@ -3,28 +3,25 @@
 import argparse
 import os
 import subprocess
+import re
 from Bio import SeqIO
+from log_progress import log
 
 
 def faSomeRecordPy(query_file, target_file, output_file):
-    # Read the query sequence
-    with open(query_file, 'r') as qfile:
-        query_record = SeqIO.read(qfile, 'fasta')
-        #print(query_record)
+    with open(query_file, 'r') as names_in, open('temp.txt', 'w') as ofile:
+        for line in names_in:
+            if line.startswith('>'):
+                gene_name = re.sub('>', '', line.strip())
+                ofile.write(gene_name + '\n')
+    command = ['faSomeRecords', target_file, 'temp.txt', output_file]
+    subprocess.call(command)
+    os.remove('temp.txt')
 
-    # Search for the query sequence in the target file
-    with open(target_file, 'r') as tfile, open(output_file, 'w') as ofile:
-        target_sequences = SeqIO.to_dict(SeqIO.parse(tfile, 'fasta'))
 
-        if query_record.id in target_sequences:
-            # Write the matching sequence to the output file
-            SeqIO.write(target_sequences[query_record.id], ofile, 'fasta')
-            print(f"Sequence found and written to {output_file}")
-        else:
-            print("Sequence not found in the target file.")
 
-def back_align(original, trimmed):
-    output = trimmed + '.pairAln'
+def back_align(original, trimmed, output):
+    log('Pairwise alignment of trimmed protein sequence to the original')
     command = ['needle', trimmed, original, output, '-gapopen', '0', '-gapextend', '0', '-aformat', 'pair']
     subprocess.run(command)
 
@@ -38,4 +35,4 @@ if __name__ == "__main__":
 
 
     faSomeRecordPy(args.input_ori, args.input_trim, args.input_trim + '.processed')
-    back_align(args.input_ori, args.input_trim + '.processed')
+    back_align(args.input_ori, args.input_trim + '.processed', args.input_trim + '.processed' + '.pairAln')

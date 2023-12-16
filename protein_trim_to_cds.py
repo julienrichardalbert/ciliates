@@ -8,44 +8,32 @@ import subprocess
 from Bio import SeqIO
 from fasta_align_tree import create_phylogenetic_tree
 from fasta_align_tree import save_phylogenetic_tree
+from back_align import faSomeRecordPy
+from log_progress import log
 
-def run_trimal(input_file, db, newdb, nogaps, automated1, noallgaps):
 
-    print(f"Making smaller cds db for speed")
-    with open(input_file, 'r') as names_in, open('temp.txt', 'w') as names_out:
-        for line in names_in:
-            if line.startswith('>'):
-                gene_name = re.sub('>', '', line.strip())
-                names_out.write(gene_name + '\n')
-    command = ['faSomeRecords', db, 'temp.txt', newdb]
-    subprocess.call(command)
-    os.remove('temp.txt')
+def run_trimal(input_file, db, newdb, args):
+    log(f"Making smaller cds db for speed")
+    faSomeRecordPy(
+        query_file=input_file,
+        target_file=db,
+        output_file=newdb
+    )
 
-    options = []
-    # If no optional arguments are provided, set -automated1 to be True
-    if not any([nogaps, automated1, noallgaps]):
-        automated1 = True
-
-    if nogaps:
-        options.append("-nogaps")
-    if automated1:
-        options.append("-automated1")
-    if noallgaps:
-        options.append("-noallgaps")
-    print(f"Trimming alignment file with option: {options}")
-
-    option_str = "_".join(options).replace("-", "") # there's probably a cleaner way
-#   trimal_output = f"{input_file}.trimal.{option_str}" # DONT DO THIS
+    option_str = str(args.trimal_strat)
+#   trimal_output = f"{input_file}.trimal.{option_str}" # DONT DO THIS EVER
     trimal_output_cds = f"{input_file}.trimal.{option_str}.cds"
     html_trimal_output = f"{input_file}.trimal.{option_str}.html"
+    options = str('-' + option_str)
 
-    print("Trimming protein sequence AND converting to cds")
+    log(f'Trimming protein sequence and converting to cds using option: {args.trimal_strat}')
     command = ["trimal",
         "-in", input_file,
         "-out", trimal_output_cds,
         "-backtrans", input_file + '.cds.db', "-ignorestopcodon",
-        "-htmlout", html_trimal_output
-    ] + options
+        "-htmlout", html_trimal_output,
+        options]
+    log(' '.join(map(str, command)))
     subprocess.run(command)
     return trimal_output_cds
 
@@ -54,9 +42,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Wrapper script for trimal command.")
     parser.add_argument("input_file", help="Input file")
     parser.add_argument("db", help="CDS database")
-    parser.add_argument("-nogaps", action="store_true", help="Enable -nogaps option")
-    parser.add_argument("-automated1", action="store_true", help="Enable -automated1 option")
-    parser.add_argument("-noallgaps", action="store_true", help="Enable -noallgaps option")
+    parser.add_argument('-trimal_strat', '--trimal_strat', action='store_true', default='automated1', help='TrimAl strategy. Please choose from: automated1, nogaps, noallgaps')
 
     args = parser.parse_args()
     trimal_output_cds = run_trimal(args.input_file, args.db, args.input_file + '.cds.db', args.nogaps, args.automated1, args.noallgaps)
