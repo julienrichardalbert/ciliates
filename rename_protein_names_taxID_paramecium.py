@@ -9,7 +9,7 @@ and
 19240  [2023-07-25 17:54:53] sed 's/TBOREA/TBOREA_/g' T.borealis.protein.fa > tmp && mv tmp T.borealis.protein.fa
 19244  [2023-07-25 17:55:15] sed 's/PMMNP/PMMNP_/g' multimicronucleatum_MO3c4_annotation_v1.protein.fa > tmp && mv tmp multimicronucleatum_MO3c4_annotation_v1.protein.fa
 
-
+EDIT 27 OCTOBER 2023: keep the original name of the species in the protein file. That way, you can pull out strains in the future.
 '''
 
 import argparse
@@ -19,7 +19,7 @@ def read_metadata(metadata_file):
     with open(metadata_file, "r") as file:
         for line in file:
             name, taxid = line.strip().split()
-            metadata[name] = ">" + taxid
+            metadata[name] = taxid
     return metadata
 
 def replace_protein_names(proteome_file, metadata_file):
@@ -29,7 +29,7 @@ def replace_protein_names(proteome_file, metadata_file):
         proteome_data = file.read()
 
     for old_ID, taxid in metadata.items():
-        proteome_data = proteome_data.replace(f"{old_ID}_", f"{taxid}.")
+        proteome_data = proteome_data.replace(f"{old_ID}_", f"{taxid}.{old_ID}_")
 
     output_file = proteome_file.replace(".fa", "_taxID.fa")
     with open(output_file, "w") as file:
