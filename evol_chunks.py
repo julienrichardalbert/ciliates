@@ -21,7 +21,7 @@ from annotate_using_taxid import annotate_taxonomy
 from annotate_using_size import annotate_seq_size
 from protein_trim_to_cds import run_trimal
 from translate import translate_cds
-from evolution import calculate_dS, run_models, get_pvals, evol_graphs, modify_leaf_names_reroot
+from evolution import calculate_dS, run_models, get_pvals_branch, get_pvals, evol_graphs, modify_leaf_names_reroot
 from back_align import faSomeRecordPy, back_align
 
 from ete3 import EvolTree
@@ -150,8 +150,9 @@ def trees_to_graphs(alignment, args):
                                     'cau': 4}
 
         if args.allmodels:
-            models = ['M1', 'M2', 'M7', 'M8', 'fb']
+            models = ['M1', 'M2', 'M7', 'M8', 'b_free', 'M0']
             run_models(alignment + '.trimal.automated1.cds', tree, models)
+            get_pvals_branch(alignment + '.trimal.automated1.cds', tree, 'b_free', 'M0')
             get_pvals(alignment + '.trimal.automated1.cds', tree, 'M2', 'M1', 'p2')  # alt, neg
             get_pvals(alignment + '.trimal.automated1.cds', tree, 'M8', 'M7', 'p10')
             evol_graphs(alignment + '.trimal.automated1.cds', tree, 'M2', 'M1', '')  # alt, neg, suffix
@@ -163,8 +164,9 @@ def trees_to_graphs(alignment, args):
             evol_graphs(alignment + '.trimal.automated1.cds', tree, 'M8', 'M7', '_sp')
             tree = ''
         else:
-            models = ['M1', 'M2']
+            models = ['M1', 'M2', 'b_free', 'M0']
             run_models(alignment + '.trimal.automated1.cds', tree, models)
+            get_pvals_branch(alignment + '.trimal.automated1.cds', tree, 'b_free', 'M0' )
             get_pvals(alignment + '.trimal.automated1.cds', tree, 'M2', 'M1', 'p2')  # alt, neg
             evol_graphs(alignment + '.trimal.automated1.cds', tree, 'M2', 'M1', '')  # alt, neg, suffix
             modify_leaf_names_reroot(tree, preference_dictionary)  # change leaf name nomenclature from TaxID.gene to spe and reroot

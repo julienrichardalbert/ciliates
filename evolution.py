@@ -4,11 +4,12 @@
 # alignment: sequences.extract.trimal.aligned
 # tree:      sequences.extract.trimal.aligned.nwk
 
+import os
+os.environ['QT_QPA_PLATFORM']='offscreen' # do not launch a GUI. must be loaded before ete3 or matplotlib  https://github.com/dkoslicki/TAMPA/issues/12
 from ete3 import EvolTree
 from ete3.treeview.layouts import evol_clean_layout
 from ete3 import NCBITaxa
 import matplotlib.pyplot as plt
-import os
 import shutil
 import argparse
 from log_progress import log
@@ -159,6 +160,20 @@ def run_models(prefix, tree, models):
             #print(get_model)
             output.write(str(get_model)+'\n')
 
+def get_pvals_branch(prefix, tree, alt, neg):
+    output_file = prefix + '.branch.pvals.txt'
+    pval = tree.get_most_likely(alt, neg)
+    log(f'{alt} vs {neg} pval: {pval}')
+
+    if tree.get_most_likely(alt, neg) < 0.05:
+        log('A branch is under selection, I think.')
+    else:
+        log('No selection on tree.')
+
+    with open(output_file, "a") as ofile:
+        ofile.write('#altModel\tnegModel\tpval\n')
+        ofile.write(alt + '\t' + neg  +  '\t' + str(pval) + '\n')
+
 def get_pvals(prefix, tree, alt, neg, pnum):
 
     altModel = tree.get_evol_model(alt)
@@ -166,7 +181,6 @@ def get_pvals(prefix, tree, alt, neg, pnum):
     log(f'{alt} vs {neg} pval: {pval}')
     output_file = prefix + '.pvals.txt'
     with open(output_file, "a") as output:
-        output.write('#altModel\tnegModel\tpval\n')
         output.write(alt + '\t' + neg  +  '\t' + str(pval) + '\n')
 
     if pval < 0.05:
@@ -204,7 +218,7 @@ def evol_graphs(prefix, tree, alt, neg, suffix):
     alt_model = tree.get_evol_model(alt)
     neg_model = tree.get_evol_model(neg)
 
-    log('Making PDF files')
+    log('Making tree PDF files')
     alt_model.set_histface(up=True, colors=col_line, errors=True, kind='curve', ylim=[0,20], hlines = [1], hlines_col=['black'])
     tree.render(prefix +  '.' + alt + suffix + '.line.pdf', histfaces=[alt])
     alt_model.set_histface(up=True, colors=col_line, errors=True, kind='curve', ylim=[0,10], hlines = [1], hlines_col=['black'])
