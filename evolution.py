@@ -5,7 +5,7 @@
 # tree:      sequences.extract.trimal.aligned.nwk
 
 import os
-os.environ['QT_QPA_PLATFORM']='offscreen' # do not launch a GUI. must be loaded before ete3 or matplotlib  https://github.com/dkoslicki/TAMPA/issues/12
+#os.environ['QT_QPA_PLATFORM']='offscreen' # do not launch a GUI. must be loaded before ete3 or matplotlib  https://github.com/dkoslicki/TAMPA/issues/12
 from ete3 import EvolTree
 from ete3.treeview.layouts import evol_clean_layout
 from ete3 import NCBITaxa
