@@ -165,7 +165,7 @@ def get_pvals_branch(prefix, tree, alt, neg):
     pval = tree.get_most_likely(alt, neg)
     log(f'{alt} vs {neg} pval: {pval}')
 
-    if tree.get_most_likely(alt, neg) < 0.05:
+    if tree.get_most_likely(alt, neg) < 0.1:
         log('A branch is under selection, I think.')
     else:
         log('No selection on tree.')

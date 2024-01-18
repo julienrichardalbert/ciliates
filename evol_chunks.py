@@ -151,18 +151,23 @@ def trees_to_graphs(alignment, args):
 
         if args.allmodels:
 #            models = ['M1', 'M2', 'M7', 'M8', 'b_free', 'M0']
-            models = ['M1', 'M2', 'M7', 'M8']
+            models = ['b_free', 'M0', 'M7', 'M8a', 'M8']
             run_models(alignment + '.trimal.automated1.cds', tree, models)
-#            get_pvals_branch(alignment + '.trimal.automated1.cds', tree, 'b_free', 'M0')
-            get_pvals(alignment + '.trimal.automated1.cds', tree, 'M2', 'M1', 'p2')  # alt, neg
+            get_pvals_branch(alignment + '.trimal.automated1.cds', tree, 'b_free', 'M0')
+            #get_pvals(alignment + '.trimal.automated1.cds', tree, 'M2', 'M1', 'p2')  # alt, neg
             get_pvals(alignment + '.trimal.automated1.cds', tree, 'M8', 'M7', 'p10')
-            evol_graphs(alignment + '.trimal.automated1.cds', tree, 'M2', 'M1', '')  # alt, neg, suffix
+            get_pvals(alignment + '.trimal.automated1.cds', tree, 'M8', 'M8a', 'p10') # did not test whether p10 is the correct p here
+            #evol_graphs(alignment + '.trimal.automated1.cds', tree, 'M2', 'M1', '')  # alt, neg, suffix
             evol_graphs(alignment + '.trimal.automated1.cds', tree, 'M8', 'M7', '')
+            evol_graphs(alignment + '.trimal.automated1.cds', tree, 'M8', 'M8a', '')
+
 
             log('Changing leaf names to species name')
             modify_leaf_names_reroot(tree, preference_dictionary)  # change leaf name nomenclature from TaxID.gene to spe and reroot
-            evol_graphs(alignment + '.trimal.automated1.cds', tree, 'M2', 'M1', '_sp')
+            #evol_graphs(alignment + '.trimal.automated1.cds', tree, 'M2', 'M1', '_sp')
             evol_graphs(alignment + '.trimal.automated1.cds', tree, 'M8', 'M7', '_sp')
+            evol_graphs(alignment + '.trimal.automated1.cds', tree, 'M8', 'M8a', '_sp')
+
             tree = ''
         else:
             models = ['M1', 'M2']
